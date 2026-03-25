@@ -1,0 +1,291 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    header, .navbar, #header, .navbar-fixed-top, nav:not(.sidebar-nav) {
+        display: none !important;
+    }
+
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #050505 !important;
+        color: white;
+        overflow-x: hidden;
+    }
+
+    .container, .container-fluid {
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    :root {
+        --bg: #050505;
+        --panel: #0f0f0f;
+        --accent: #00ff41;
+        --border: rgba(255, 255, 255, 0.07);
+        --text-dim: #666;
+    }
+
+    .app-wrapper {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+    }
+
+    .left-sidebar {
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 30px 20px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+    }
+
+    .logo-link {
+        text-decoration: none !important;
+        display: block;
+        margin-bottom: 40px;
+        transition: transform 0.2s;
+    }
+
+        .logo-link:hover {
+            transform: scale(1.02);
+        }
+
+    .logo-box {
+        width: 100%;
+        max-width: 160px;
+        height: 80px;
+        background: url("{% static 'app/img/logo.png' %}") no-repeat center/contain;
+        margin: 0 auto 10px;
+    }
+
+    .logo-text {
+        color: var(--accent);
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: 2px;
+        font-size: 1.1rem;
+    }
+
+    .nav-link-custom {
+        color: var(--text-dim) !important;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        border-radius: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--accent) !important;
+        }
+
+    /* Стили для карточек менторов */
+    .mentor-item {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+        margin-bottom: 10px;
+        transition: 0.3s;
+        text-decoration: none !important;
+        display: block;
+    }
+
+        .mentor-item:hover {
+            border-color: var(--accent);
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+    .main-content {
+        padding: 40px;
+    }
+
+    .main-title {
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        letter-spacing: -1px;
+    }
+
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .task-card {
+        background: #0f0f0f;
+        border: 1px solid var(--border);
+        border-radius: 25px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 300px;
+        transition: all 0.3s ease;
+    }
+
+        .task-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.1);
+        }
+
+    .price-badge {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin: 10px 0;
+    }
+
+    .btn-help {
+        background: #fff;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-help:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+
+    .modal-content {
+        background: #111 !important;
+        border-radius: 24px !important;
+        color: white !important;
+        border: 1px solid #222 !important;
+    }
+
+        .modal-content input, .modal-content textarea, .modal-content select {
+            background: #1a1a1a !important;
+            color: white !important;
+            border: 1px solid #333 !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+            .modal-content input::placeholder, .modal-content textarea::placeholder {
+                color: #ffffff !important;
+                opacity: 0.8 !important;
+            }
+
+        .modal-content label {
+            font-size: 0.7rem;
+            color: #888;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+    .floating-add {
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        background: #fff;
+        color: #000;
+        padding: 18px 30px;
+        border-radius: 50px;
+        font-weight: 800;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        z-index: 1000;
+        transition: 0.3s;
+    }
+</style>
+
+<div class="app-wrapper">
+    {% include "app/sidebar.html" %}
+
+    <main class="main-content">
+        <h1 class="main-title">Активные задания</h1>
+        <div class="orders-grid">
+            {% for order in orders %}
+            <div class="task-card">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span style="background: var(--accent); color: #000; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase;">{{ order.subject.name }}</span>
+                        <div class="price-badge">{{ order.price }} ₸</div>
+                    </div>
+                    <p style="color: #ccc; font-size: 0.95rem; line-height: 1.5; margin-top: 15px;">{{ order.description|truncatechars:100 }}</p>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 20px;">
+                    <div style="font-size: 0.8rem;">
+                        <a href="{% url 'user_detail' order.student.username %}" style="text-decoration: none; color: #fff; font-weight: 700; opacity: 0.8;">{{ order.student.username }}</a>
+                        <div style="color: #444;">{{ order.created_at|timesince }} назад</div>
+                    </div>
+                    {% if user.is_authenticated %}
+                    {% if order.student == user %}
+                    <span style="color: #333; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;">Мой заказ</span>
+                    {% else %}
+                    <a href="{% url 'accept_order' order.id %}"><button class="btn-help">Помочь</button></a>
+                    {% endif %}
+                    {% else %}
+                    <a href="{% url 'login' %}"><button class="btn-help">Войти</button></a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-dim);">
+                <i class="bi bi-search" style="font-size: 3rem;"></i>
+                <p class="mt-3">Пока заданий нет. Будь первым!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+{% if user.is_authenticated %}
+<button class="floating-add" data-bs-toggle="modal" data-bs-target="#createModal">+ СОЗДАТЬ ЗАКАЗ</button>
+{% endif %}
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <h2 style="font-weight: 800; color: white; margin-bottom: 25px;">Новое задание</h2>
+
+            <form method="post" action="{% url 'create_order' %}">
+                {% csrf_token %}
+
+                <label>Предмет</label>
+                {{ form.subject }}
+
+                <label>Описание задачи</label>
+                {{ form.description }}
+
+                <label>Бюджет (₸)</label>
+                {{ form.price }}
+
+                <button type="submit" class="btn-help w-100 py-3 mt-3" style="background: #00ff41; color: #000; border: none; border-radius: 12px; font-weight: 800;">
+                    ОПУБЛИКОВАТЬ
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

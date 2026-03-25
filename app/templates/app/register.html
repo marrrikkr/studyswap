@@ -1,0 +1,41 @@
+{% extends "app/layout.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Регистрация</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <p style="color: #ff4444; font-size: 0.75rem;">{{ field.errors.0 }}</p>
+            {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn-auth" style="background: #00ff41;">СОЗДАТЬ АККАУНТ</button>
+        </form>
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="{% url 'login' %}" style="color: #666; text-decoration: none; font-size: 0.9rem;">Уже есть аккаунт? <span style="color: #fff;">Войти</span></a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Дополнительный фикс для формы регистрации Django */
+    .auth-card input {
+        display: block;
+        width: 100%;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: white;
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+
+    .auth-card ul {
+        display: none;
+    }
+    /* Скрываем стандартные подсказки Django о пароле */
+</style>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% load static %}
+<aside class="left-sidebar" style="display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0;">
+    <a href="{% url 'index' %}" class="logo-link" style="text-decoration: none; display: block; margin-bottom: 40px; transition: transform 0.2s;">
+        <div class="logo-box" style="
+            width: 100%;
+            max-width: 160px;
+            height: 60px;
+            background: url('{% static 'app/img/logo.png' %}') no-repeat center/contain;
+            margin: 0 auto 5px;
+        "></div>
+        <div class="logo-text" style="
+            color: #00ff41;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 2px;
+            font-size: 1.1rem;
+        ">STUDYSWAP</div>
+    </a>
+
+    <nav class="sidebar-nav" style="flex-grow: 1;">
+        <div style="color: #333; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 15px 15px;">Меню</div>
+
+        <a href="{% url 'index' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <i class="bi bi-grid-fill"></i> Лента заказов
+        </a>
+
+        <a href="{% url 'mentors_list' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'mentors_list' %}active{% endif %}">
+            <i class="bi bi-star-fill"></i> Топ менторов
+        </a>
+
+        <a href="{% url 'wallet' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">
+            <i class="bi bi-wallet2"></i> Кошелек
+        </a>
+
+        <a href="{% url 'profile' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="bi bi-person-circle"></i> Мой профиль
+        </a>
+    </nav>
+
+    <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+        {% if user.is_authenticated %}
+        <div style="background: linear-gradient(145deg, #141414 0%, #0a0a0a 100%); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #00ff41; font-size: 0.8rem; border: 1px solid rgba(0,255,65,0.2);">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div style="color: #fff; font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ user.username }}
+                </div>
+            </div>
+
+            <div style="color:#555; font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing: 1px;">Баланс счета</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-top: 2px;">{{ user.profile.balance }} ₸</div>
+        </div>
+
+        <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link-custom logout-btn" style="background:none; border:none; width:100%; color:#555 !important; cursor:pointer; text-align: left; display: flex; align-items: center; gap: 12px; transition: 0.3s; padding: 12px 15px;">
+                <i class="bi bi-box-arrow-right"></i> Выйти из системы
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-link-custom" style="color: #00ff41 !important; border: 1px solid rgba(0,255,65,0.2); justify-content: center; font-weight: 800;">
+            <i class="bi bi-box-arrow-in-right"></i> ВОЙТИ
+        </a>
+        {% endif %}
+    </div>
+</aside>
+
+<style>
+    .logout-btn:hover {
+        color: #ff4444 !important;
+        background: rgba(255, 68, 68, 0.05) !important;
+    }
+</style>

@@ -1,0 +1,285 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Анимация появления контента */
+    .wallet-container {
+        padding: 40px;
+        max-width: 900px;
+        animation: fadeIn 0.6s ease;
+    }
+
+    /* Карточка баланса */
+    .balance-card {
+        background: linear-gradient(135deg, #0f0f0f 0%, #050505 100%);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 35px;
+        padding: 50px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+        .balance-card::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 255, 65, 0.08) 0%, transparent 70%);
+        }
+
+    .balance-label {
+        color: #555;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.7rem;
+    }
+
+    .balance-amount {
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 15px 0;
+        letter-spacing: -3px;
+    }
+
+    /* Скрытая секция вывода */
+    #withdrawSection {
+        display: none;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 30px;
+    }
+
+    .withdraw-form {
+        background: #0f0f0f;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 25px;
+        padding: 35px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .input-label {
+        color: #444;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        margin-bottom: 12px;
+        display: block;
+        letter-spacing: 1px;
+    }
+
+    .custom-input {
+        width: 100%;
+        background: #050505;
+        border: 1px solid #222;
+        border-radius: 18px;
+        padding: 20px;
+        color: white;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.3rem;
+        letter-spacing: 2px;
+        outline: none;
+        margin-bottom: 25px;
+        transition: 0.3s;
+    }
+
+        .custom-input:focus {
+            border-color: var(--accent);
+            background: #080808;
+        }
+
+    /* Кнопки действий */
+    .action-btn {
+        background: #0f0f0f;
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 25px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: 0.3s;
+        cursor: pointer;
+        width: 100%;
+        user-select: none;
+    }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            background: #121212;
+            transform: translateY(-3px);
+        }
+
+    .btn-submit {
+        width: 100%;
+        background: #fff;
+        color: #000;
+        border: none;
+        padding: 22px;
+        border-radius: 18px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+        .btn-submit:hover {
+            background: var(--accent);
+            transform: scale(1.02);
+        }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="app-wrapper">
+    {% include "app/sidebar.html" %}
+
+    <main class="wallet-container">
+        <h1 style="font-weight: 800; font-size: 2.5rem; margin-bottom: 40px; letter-spacing: -1px;">Мой кошелек</h1>
+
+        <div class="balance-card">
+            <div class="balance-label">Доступные средства</div>
+            <div class="balance-amount">{{ user.profile.balance }} ₸</div>
+            <div style="color: #333; font-weight: 700; font-size: 0.9rem;">ID аккаунта: #00{{ user.id }}</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div onclick="alert('Модуль пополнения Kaspi.kz находится в разработке.')" class="action-btn">
+                <div style="background: rgba(0, 255, 65, 0.1); width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #00ff41; font-size: 1.5rem;">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; color: #fff; font-size: 1.1rem;">Пополнить</div>
+                    <div style="color: #444; font-size: 0.8rem;">Kaspi, Visa, MasterCard</div>
+                </div>
+            </div>
+
+            <div onclick="toggleWithdraw()" class="action-btn">
+                <div style="background: rgba(255, 68, 68, 0.1); width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #ff4444; font-size: 1.5rem;">
+                    <i class="bi bi-arrow-up-right-circle-fill"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; color: #fff; font-size: 1.1rem;">Вывести</div>
+                    <div style="color: #444; font-size: 0.8rem;">На карту Казахстана</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="withdrawSection">
+            <div class="withdraw-form">
+                <h3 style="font-weight: 800; margin-bottom: 30px; font-size: 1.4rem;">Оформление выплаты</h3>
+
+                <div class="input-group">
+                    <label class="input-label">Номер карты (16 цифр)</label>
+                    <input type="text" id="cardInput" class="custom-input" placeholder="0000 0000 0000 0000" maxlength="19">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Сумма вывода (₸)</label>
+                    <input type="number" id="amountInput" class="custom-input" placeholder="0.00" style="font-family: inherit; letter-spacing: 0;">
+                </div>
+
+                <button onclick="processWithdraw()" class="btn-submit">
+                    Подтвердить вывод
+                </button>
+
+                <div style="background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255, 170, 0, 0.1); border-radius: 20px; padding: 20px; display: flex; gap: 15px; align-items: center; margin-top: 30px;">
+                    <div style="font-size: 1.6rem; color: #ffaa00;"><i class="bi bi-info-circle-fill"></i></div>
+                    <div style="font-size: 0.85rem; color: #888; line-height: 1.5;">
+                        <strong style="color: #ffaa00;">Важно:</strong> При выводе удерживается комиссия StudySwap <b style="color: white;">10%</b>. Минимальная сумма вывода — 500 ₸.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Получаем баланс напрямую из Django
+    const currentBalance = parseFloat("{{ user.profile.balance }}".replace(',', '.'));
+
+    function toggleWithdraw() {
+        const section = document.getElementById('withdrawSection');
+        if (section.style.display === 'block') {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(-20px)';
+            setTimeout(() => { section.style.display = 'none'; }, 400);
+        } else {
+            section.style.display = 'block';
+            setTimeout(() => {
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 10);
+        }
+    }
+
+    // Форматирование номера карты (пробелы каждые 4 цифры)
+    const cardInput = document.getElementById('cardInput');
+    cardInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) formattedValue += ' ';
+            formattedValue += value[i];
+        }
+        e.target.value = formattedValue;
+    });
+
+    // Логика проверки перед выводом
+    function processWithdraw() {
+        const amountInput = document.getElementById('amountInput');
+        const amount = parseFloat(amountInput.value);
+        const cardValue = cardInput.value.replace(/\s/g, '');
+
+        // Сброс стиля ошибки
+        amountInput.style.borderColor = '#222';
+
+        if (!amount || amount <= 0) {
+            alert('Пожалуйста, введите корректную сумму.');
+            return;
+        }
+
+        if (cardValue.length < 16) {
+            alert('Введите полный номер карты (16 цифр).');
+            return;
+        }
+
+        if (amount < 500) {
+            alert('Минимальная сумма для вывода составляет 500 ₸.');
+            return;
+        }
+
+        // ПРОВЕРКА БАЛАНСА
+        if (amount > currentBalance) {
+            alert('Ошибка: Недостаточно средств!\n\nВаш баланс: ' + currentBalance + ' ₸\nЗапрашиваемая сумма: ' + amount + ' ₸');
+            amountInput.style.borderColor = '#ff4444';
+            amountInput.style.boxShadow = '0 0 10px rgba(255, 68, 68, 0.2)';
+            return;
+        }
+
+        // Если всё успешно
+        alert('Заявка на вывод ' + amount + ' ₸ принята в обработку!\nСредства поступят на карту ' + cardInput.value + ' после модерации.');
+        toggleWithdraw();
+        amountInput.value = '';
+        cardInput.value = '';
+    }
+</script>
+{% endblock %}

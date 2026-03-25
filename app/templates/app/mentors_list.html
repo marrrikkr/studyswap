@@ -1,0 +1,165 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .mentors-container {
+        padding: 40px;
+        max-width: 1100px;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .mentors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .mentor-card {
+        background: #0f0f0f;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 25px;
+        padding: 30px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .mentor-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(0, 255, 65, 0.1);
+        }
+
+    .mentor-avatar {
+        width: 60px;
+        height: 60px;
+        background: #1a1a1a;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .rating-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 170, 0, 0.1);
+        color: #ffaa00;
+        padding: 5px 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+
+    .skills-tag {
+        font-size: 0.75rem;
+        color: #666;
+        background: rgba(255,255,255,0.03);
+        padding: 4px 10px;
+        border-radius: 8px;
+        margin-right: 5px;
+        margin-top: 5px;
+        display: inline-block;
+    }
+
+    .btn-view {
+        width: 100%;
+        background: rgba(255,255,255,0.03);
+        color: white;
+        text-align: center;
+        padding: 12px;
+        border-radius: 12px;
+        text-decoration: none !important;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-top: 25px;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: 0.3s;
+    }
+
+        .btn-view:hover {
+            background: white;
+            color: black;
+        }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="app-wrapper">
+    {% include "app/sidebar.html" %}
+
+    <main class="mentors-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h1 style="font-weight: 800; font-size: 2.5rem; letter-spacing: -1px;">Топ менторов</h1>
+            <div style="color: #444; font-weight: 700; font-size: 0.9rem;">
+                Всего специалистов: {{ mentors.count }}
+            </div>
+        </div>
+        <p style="color: #666; font-size: 1.1rem; margin-bottom: 40px;">Проверенные студенты, готовые помочь с твоими задачами</p>
+
+        <div class="mentors-grid">
+            {% for mentor in mentors %}
+            <div class="mentor-card">
+                <div class="rating-badge">
+                    <i class="bi bi-star-fill"></i> {{ mentor.rating }}
+                </div>
+
+                <div>
+                    <div class="mentor-avatar">
+                        {{ mentor.user.username|slice:":1"|upper }}
+                    </div>
+
+                    <h3 style="font-weight: 800; color: #fff; margin-bottom: 5px; font-size: 1.3rem;">
+                        {{ mentor.user.username }}
+                    </h3>
+
+                    <div style="color: var(--accent); font-size: 0.85rem; font-weight: 700; margin-bottom: 15px;">
+                        {{ mentor.deals_completed }} завершенных сделок
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        {% if mentor.skills %}
+                        <p style="color: #aaa; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px;">
+                            {{ mentor.skills|truncatechars:80 }}
+                        </p>
+                        {% else %}
+                        <p style="color: #444; font-size: 0.85rem; font-style: italic;">Навыки не указаны</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="{% url 'user_detail' mentor.user.username %}" class="btn-view">
+                    Посмотреть профиль
+                </a>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px; background: #0f0f0f; border-radius: 30px; border: 1px dashed #222;">
+                <i class="bi bi-people" style="font-size: 3rem; color: #222;"></i>
+                <p style="color: #444; font-weight: 700; margin-top: 15px;">Менторов пока нет. Стань первым!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

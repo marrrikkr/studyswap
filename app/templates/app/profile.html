@@ -1,0 +1,277 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .profile-content {
+        padding: 40px;
+        max-width: 1200px;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .profile-header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 25px;
+        padding: 40px;
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .rating-badge {
+        background: rgba(255, 170, 0, 0.1);
+        color: #ffaa00;
+        padding: 6px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .task-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: 0.3s;
+    }
+
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+
+    .status-open {
+        background: #222;
+        color: #888;
+    }
+
+    .status-progress {
+        background: #ffaa00;
+        color: #000;
+    }
+
+    .status-review {
+        background: #008cff;
+        color: #fff;
+    }
+
+    .status-completed {
+        background: var(--accent);
+        color: #000;
+    }
+
+    .btn-action {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none !important;
+        margin-top: 12px;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .btn-tg {
+        background: #24A1DE;
+        color: white !important;
+    }
+
+    .btn-confirm {
+        background: var(--accent);
+        color: #000 !important;
+    }
+
+    .btn-submit {
+        background: #fff;
+        color: #000 !important;
+    }
+
+    /* Стили для формы отзывов */
+    .review-textarea {
+        width: 100%;
+        background: #151515;
+        border: 1px solid #333;
+        border-radius: 12px;
+        color: white;
+        padding: 12px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        resize: none;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+        .review-textarea:focus {
+            border-color: var(--accent);
+        }
+
+    .review-select {
+        background: #1a1a1a;
+        color: white;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 10px;
+        font-weight: bold;
+        flex: 1;
+        outline: none;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="app-wrapper">
+    {% include "app/sidebar.html" %}
+
+    <main class="profile-content">
+        <div class="profile-header">
+            <div>
+                <h1 style="font-weight: 800; margin: 0; font-size: 2.5rem; letter-spacing: -1px;">{{ user.username }}</h1>
+                <div class="rating-badge">
+                    <i class="bi bi-star-fill"></i> {{ user.profile.rating }}
+                    <span style="opacity: 0.5; font-size: 0.75rem; font-weight: 600;">({{ user.profile.deals_completed }} сделок)</span>
+                </div>
+                <p style="color: #666; margin-top: 20px; font-weight: 600;">
+                    {% if user.profile.telegram %}
+                    <i class="bi bi-telegram" style="color: #24A1DE;"></i> @{{ user.profile.telegram }}
+                    {% else %}
+                    <span style="color: #ff4444;">Telegram не указан</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.7rem; color: #555; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Доступный баланс</div>
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-top: 5px;">{{ user.profile.balance }} ₸</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-person-up" style="color: var(--accent);"></i> Я заказчик
+                </h3>
+                {% for order in my_orders %}
+                <div class="task-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: var(--accent); font-weight: 800; font-size: 1.1rem;">{{ order.subject.name }}</span>
+                        <span style="font-weight: 800; color: #fff;">{{ order.price }} ₸</span>
+                    </div>
+                    <p style="color: #888; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">{{ order.description }}</p>
+
+                    {% if order.status == 'open' %}
+                    <span class="badge-status status-open">Поиск исполнителя</span>
+                    {% elif order.status == 'in_progress' %}
+                    <span class="badge-status status-progress">В работе у @{{ order.executor.username }}</span>
+                    <a href="https://t.me/{{ order.executor.profile.telegram }}" target="_blank" class="btn-action btn-tg"><i class="bi bi-telegram"></i> Чат с исполнителем</a>
+                    {% elif order.status == 'waiting_review' %}
+                    <span class="badge-status status-review">Работа выполнена</span>
+                    <a href="{% url 'confirm_order' order.id %}" class="btn-confirm btn-action">Принять и выплатить {{ order.price }} ₸</a>
+                    {% elif order.status == 'completed' %}
+                    <span class="badge-status status-completed">Завершено</span>
+                    {% if not order.student_reviewed %}
+                    <form action="{% url 'leave_review' order.id %}" method="post" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                        {% csrf_token %}
+                        <div style="font-size: 0.65rem; color: #555; text-transform: uppercase; margin-bottom: 10px; font-weight: 800;">Оцените ментора</div>
+
+                        <textarea name="comment" class="review-textarea" placeholder="Напишите краткий отзыв о работе..." rows="2"></textarea>
+
+                        <div style="display: flex; gap: 10px;">
+                            <select name="rating" class="review-select">
+                                <option value="5">5 ★ Отлично</option>
+                                <option value="4">4 ★ Хорошо</option>
+                                <option value="3">3 ★ Нормально</option>
+                                <option value="2">2 ★ Плохо</option>
+                                <option value="1">1 ★ Ужасно</option>
+                            </select>
+                            <button type="submit" class="btn-confirm" style="border: none; border-radius: 10px; padding: 0 20px; cursor: pointer; font-weight: 800;">ОК</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div style="font-size: 0.75rem; color: var(--accent); margin-top: 10px; font-weight: bold;"><i class="bi bi-check2-all"></i> Вы оценили ментора</div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div style="color: #444; font-weight: 600;">У вас пока нет заказов.</div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-mortarboard-fill" style="color: var(--accent);"></i> Я исполнитель
+                </h3>
+                {% for work in my_work %}
+                <div class="task-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: var(--accent); font-weight: 800; font-size: 1.1rem;">{{ work.subject.name }}</span>
+                        <span style="font-weight: 800; color: var(--accent);">+{{ work.price }} ₸</span>
+                    </div>
+                    <p style="color: #888; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">{{ work.description }}</p>
+
+                    {% if work.status == 'in_progress' %}
+                    <span class="badge-status status-progress">Выполняете</span>
+                    <a href="https://t.me/{{ work.student.profile.telegram }}" target="_blank" class="btn-action btn-tg"><i class="bi bi-telegram"></i> Чат с заказчиком</a>
+                    <a href="{% url 'submit_order' work.id %}" class="btn-action btn-submit">Сдать работу на проверку</a>
+                    {% elif work.status == 'waiting_review' %}
+                    <span class="badge-status status-review">Ожидание подтверждения</span>
+                    {% elif work.status == 'completed' %}
+                    <span class="badge-status status-completed">Оплата получена</span>
+
+                    {% if not work.executor_reviewed %}
+                    <form action="{% url 'leave_review' work.id %}" method="post" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                        {% csrf_token %}
+                        <div style="font-size: 0.65rem; color: #555; text-transform: uppercase; margin-bottom: 10px; font-weight: 800;">Оцените заказчика</div>
+
+                        <textarea name="comment" class="review-textarea" placeholder="Каков был заказчик в общении?" rows="2"></textarea>
+
+                        <div style="display: flex; gap: 10px;">
+                            <select name="rating" class="review-select">
+                                <option value="5">5 ★ Идеальный заказчик</option>
+                                <option value="4">4 ★ Хороший</option>
+                                <option value="3">3 ★ Обычный</option>
+                                <option value="2">2 ★ Проблемный</option>
+                                <option value="1">1 ★ Неадекватный</option>
+                            </select>
+                            <button type="submit" class="btn-confirm" style="border: none; border-radius: 10px; padding: 0 20px; cursor: pointer; font-weight: 800;">ОК</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div style="font-size: 0.75rem; color: var(--accent); margin-top: 10px; font-weight: bold;"><i class="bi bi-check2-all"></i> Вы оценили заказчика</div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div style="color: #444; font-weight: 600;">Вы пока не взяли ни одного заказа.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
